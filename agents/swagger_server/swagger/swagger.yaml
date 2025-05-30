@@ -714,4 +714,3 @@ components:
           description: End date for the analysis.
           format: date
       description: Temporal range for the analysis.
-

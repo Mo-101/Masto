@@ -1601,4 +1601,3 @@ components:
       name: X-Api-Key
       in: header
       x-apikeyInfoFunc: swagger_server.controllers.authorization_controller.check_GoogleVisionKey
-
