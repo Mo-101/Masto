@@ -1,39 +1,98 @@
+import os
 from flask import request, jsonify, current_app
-
-_api_key_header = 'Authorization' # Standard header for API keys
+from functools import wraps
 
 def init_auth(app):
-    """
-    Placeholder for more complex authentication initialization (e.g., JWT, OAuth).
-    Currently, auth is primarily handled by check_deepseek_auth for specific routes.
-    """
-    # Example: app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-    # Example: jwt = JWTManager(app)
-    pass
+    """Initialize authentication for the Flask app."""
+    app.logger.info("Authentication module initialized")
 
 def check_deepseek_auth():
     """
-    Checks for the DeepSeek API key in the Authorization header.
-    The key is expected to be in the format "Bearer <YOUR_API_KEY>".
+    Check if DeepSeek API key is available and valid.
+    Returns None if auth is successful, or a Flask response if there's an error.
     """
-    auth_header = request.headers.get(_api_key_header)
-    expected_api_key = current_app.config.get('DEEPSEEK_API_KEY')
-
-    if not expected_api_key:
-        current_app.logger.error("DEEPSEEK_API_KEY is not configured in the application.")
-        # This is a server configuration error, so 500 is appropriate.
-        return jsonify({'error':'server_configuration_error', 'message':'DeepSeek API key is not configured on the server.'}), 500
-
-    if not auth_header:
-        return jsonify({'error':'unauthorized', 'message':f"Missing {_api_key_header} header."}), 401
+    api_key = os.getenv('DEEPSEEK_API_KEY')
     
-    parts = auth_header.split()
+    if not api_key:
+        current_app.logger.error("DeepSeek API key not found in environment variables")
+        return jsonify({
+            'error': 'unauthorized',
+            'message': 'DeepSeek API key not configured'
+        }), 401
+    
+    # Additional validation could be added here
+    # For now, we just check if the key exists and has a reasonable format
+    if not api_key.startswith('sk-') or len(api_key) < 10:
+        current_app.logger.error("DeepSeek API key appears to be invalid format")
+        return jsonify({
+            'error': 'unauthorized', 
+            'message': 'Invalid DeepSeek API key format'
+        }), 401
+    
+    return None  # Auth successful
 
-    if parts[0].lower() != 'bearer' or len(parts) == 1 or len(parts) > 2:
-        return jsonify({'error':'unauthorized', 'message':f"Invalid {_api_key_header} header format. Expected 'Bearer <token>'."}), 401
+def require_api_key(f):
+    """
+    Decorator to require API key authentication for routes.
+    Checks for API key in Authorization header.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        
+        if not auth_header:
+            return jsonify({
+                'error': 'unauthorized',
+                'message': 'Authorization header required'
+            }), 401
+        
+        # Extract API key from "Bearer <key>" or "sk-<key>" format
+        if auth_header.startswith('Bearer '):
+            api_key = auth_header[7:]
+        elif auth_header.startswith('sk-'):
+            api_key = auth_header
+        else:
+            return jsonify({
+                'error': 'unauthorized',
+                'message': 'Invalid authorization header format'
+            }), 401
+        
+        # Validate API key (this is a simple check - enhance as needed)
+        expected_key = os.getenv('API_KEY') or os.getenv('DEEPSEEK_API_KEY')
+        if not expected_key or api_key != expected_key:
+            return jsonify({
+                'error': 'unauthorized',
+                'message': 'Invalid API key'
+            }), 401
+        
+        return f(*args, **kwargs)
     
-    token = parts[1]
-    if token != expected_api_key:
-        return jsonify({'error':'unauthorized', 'message':'Invalid DeepSeek API key.'}), 401
+    return decorated_function
+
+def check_firebase_auth():
+    """
+    Check Firebase authentication token.
+    Returns None if auth is successful, or a Flask response if there's an error.
+    """
+    auth_header = request.headers.get('Authorization')
     
-    return None # Authentication successful
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({
+            'error': 'unauthorized',
+            'message': 'Firebase ID token required'
+        }), 401
+    
+    id_token = auth_header[7:]  # Remove 'Bearer ' prefix
+    
+    try:
+        # Verify the ID token with Firebase Admin SDK
+        from firebase_admin import auth
+        decoded_token = auth.verify_id_token(id_token)
+        # Token is valid, you can access user info via decoded_token
+        return None
+    except Exception as e:
+        current_app.logger.error(f"Firebase token verification failed: {e}")
+        return jsonify({
+            'error': 'unauthorized',
+            'message': 'Invalid Firebase ID token'
+        }), 401

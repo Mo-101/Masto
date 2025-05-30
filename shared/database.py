@@ -1,57 +1,161 @@
-import firebase_admin
-from firebase_admin import credentials, initialize_app, firestore, _apps
-from flask import current_app # For logging within Flask app context
+import os
+import asyncio
+from contextlib import asynccontextmanager
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, Text, DECIMAL, ARRAY, JSON
+from sqlalchemy.sql import func
+from flask import current_app
+from neon import neon
 
-_db_client = None
+# Database configuration
+DATABASE_URL = os.getenv('DATABASE_URL')
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is required")
 
-def init_db(app): # app instance is passed from create_app
-    """
-    Initializes the Firebase Admin SDK using credentials from Flask app config.
-    Ensures Firebase is initialized only once.
-    """
-    global _db_client
+# Create async engine for SQLAlchemy
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=True if os.getenv('DEBUG') == 'true' else False,
+    future=True
+)
+
+# Create async session factory
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+# Create Neon SQL client for direct queries
+sql = neon(DATABASE_URL)
+
+# SQLAlchemy Base
+Base = declarative_base()
+
+# Database Models
+class DetectionPattern(Base):
+    __tablename__ = 'detection_patterns'
+    __table_args__ = {'schema': 'mntrk'}
     
-    # Check if Firebase default app is already initialized to prevent errors
-    if not firebase_admin._apps: # Correct way to check if default app is initialized
-        cred_path = app.config.get('FIREBASE_CREDENTIALS')
-        if not cred_path:
-            # Use Flask's logger if available (within app context)
-            log_message = "FIREBASE_CREDENTIALS path not set in Flask config. Please set the environment variable."
-            if app and hasattr(app, 'logger'):
-                app.logger.error(log_message)
-            else:
-                print(f"ERROR: {log_message}") # Fallback if logger not available
-            raise RuntimeError(log_message)
-        
-        try:
-            cred = credentials.Certificate(cred_path)
-            initialize_app(cred)
-            if app and hasattr(app, 'logger'):
-                app.logger.info("Firebase Admin SDK initialized successfully.")
-            else:
-                print("INFO: Firebase Admin SDK initialized successfully.")
-        except Exception as e:
-            log_message = f"Failed to initialize Firebase Admin SDK: {e}"
-            if app and hasattr(app, 'logger'):
-                app.logger.error(log_message)
-            else:
-                print(f"ERROR: {log_message}")
-            raise RuntimeError(log_message)
-            
-    _db_client = firestore.client()
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String)
+    latitude = Column(DECIMAL(10, 8))
+    longitude = Column(DECIMAL(11, 8))
+    detection_timestamp = Column(DateTime(timezone=True), server_default=func.now())
+    confidence_score = Column(DECIMAL(5, 4))
+    detection_method = Column(String(50))
+    image_url = Column(Text)
+    environmental_context = Column(JSON)
+    notes = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now())
 
-def get_db():
-    """
-    Returns an initialized Firestore client.
-    Raises RuntimeError if Firebase Admin SDK is not initialized.
-    """
-    if not _db_client:
-        # This situation should ideally be avoided by ensuring init_db is called correctly
-        # during app creation.
-        log_message = 'Firebase not initialized. Ensure init_db() is called successfully during app creation.'
-        if current_app and hasattr(current_app, 'logger'): # current_app might not be available if called outside request context
-            current_app.logger.error(log_message)
-        else:
-            print(f"ERROR: {log_message}")
-        raise RuntimeError(log_message)
-    return _db_client
+class HabitatAnalysis(Base):
+    __tablename__ = 'habitat_analyses'
+    __table_args__ = {'schema': 'mntrk'}
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String)
+    region_name = Column(String(255))
+    latitude = Column(DECIMAL(10, 8))
+    longitude = Column(DECIMAL(11, 8))
+    suitability_score = Column(DECIMAL(5, 4))
+    analysis_timestamp = Column(DateTime(timezone=True), server_default=func.now())
+    satellite_image_url = Column(Text)
+    environmental_data = Column(JSON)
+    risk_factors = Column(ARRAY(Text))
+    analysis_parameters = Column(JSON)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class AIPrediction(Base):
+    __tablename__ = 'ai_predictions'
+    __table_args__ = {'schema': 'mntrk'}
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String)
+    prediction_type = Column(String(50))
+    input_data = Column(JSON)
+    prediction_result = Column(JSON)
+    model_version = Column(String(50))
+    confidence_score = Column(DECIMAL(5, 4))
+    prediction_timestamp = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+# Database functions
+def init_db(app):
+    """Initialize database connection for Flask app."""
+    app.logger.info("Database initialized with Neon PostgreSQL")
+
+@asynccontextmanager
+async def get_async_session():
+    """Get async database session."""
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+async def get_neon_sql():
+    """Get Neon SQL client for direct queries."""
+    return sql
+
+# Sync wrapper for Flask routes
+def get_db_sync():
+    """Synchronous database access for Flask routes."""
+    return sql
+
+# Database operations
+async def create_detection_pattern(data: dict):
+    """Create a new detection pattern record."""
+    async with get_async_session() as session:
+        pattern = DetectionPattern(**data)
+        session.add(pattern)
+        await session.flush()
+        return pattern.id
+
+async def create_habitat_analysis(data: dict):
+    """Create a new habitat analysis record."""
+    async with get_async_session() as session:
+        analysis = HabitatAnalysis(**data)
+        session.add(analysis)
+        await session.flush()
+        return analysis.id
+
+async def create_ai_prediction(data: dict):
+    """Create a new AI prediction record."""
+    async with get_async_session() as session:
+        prediction = AIPrediction(**data)
+        session.add(prediction)
+        await session.flush()
+        return prediction.id
+
+# Direct SQL queries using Neon
+async def query_recent_detections(limit: int = 10):
+    """Query recent detection patterns using Neon SQL."""
+    result = await sql("""
+        SELECT id, latitude, longitude, detection_timestamp, confidence_score
+        FROM mntrk.detection_patterns 
+        ORDER BY detection_timestamp DESC 
+        LIMIT $1
+    """, limit)
+    return result
+
+async def query_habitat_suitability(lat: float, lon: float, radius_km: float = 10):
+    """Query habitat suitability in a geographic area."""
+    result = await sql("""
+        SELECT AVG(suitability_score) as avg_suitability,
+               COUNT(*) as analysis_count
+        FROM mntrk.habitat_analyses
+        WHERE ST_DWithin(
+            ST_Point(longitude, latitude)::geography,
+            ST_Point($2, $1)::geography,
+            $3 * 1000
+        )
+    """, lat, lon, radius_km)
+    return result[0] if result else None
