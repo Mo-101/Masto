@@ -1,0 +1,4 @@
+flask
+firebase-admin
+httpx
+# flask_sqlalchemy and psycopg2-binary are removed
