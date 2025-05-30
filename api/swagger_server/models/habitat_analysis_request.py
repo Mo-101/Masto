@@ -6,7 +6,9 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
+from swagger_server.models.habitat_analysis_request_analysis_parameters import HabitatAnalysisRequestAnalysisParameters  # noqa: F401,E501
 from swagger_server.models.habitat_analysis_request_environmental_data import HabitatAnalysisRequestEnvironmentalData  # noqa: F401,E501
+from swagger_server.models.habitat_analysis_request_geographic_coordinates import HabitatAnalysisRequestGeographicCoordinates  # noqa: F401,E501
 from swagger_server import util
 
 
@@ -15,30 +17,35 @@ class HabitatAnalysisRequest(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, region: str=None, satellite_image_url: str=None, environmental_data: HabitatAnalysisRequestEnvironmentalData=None):  # noqa: E501
+    def __init__(self, satellite_data: str=None, environmental_data: HabitatAnalysisRequestEnvironmentalData=None, geographic_coordinates: HabitatAnalysisRequestGeographicCoordinates=None, analysis_parameters: HabitatAnalysisRequestAnalysisParameters=None):  # noqa: E501
         """HabitatAnalysisRequest - a model defined in Swagger
 
-        :param region: The region of this HabitatAnalysisRequest.  # noqa: E501
-        :type region: str
-        :param satellite_image_url: The satellite_image_url of this HabitatAnalysisRequest.  # noqa: E501
-        :type satellite_image_url: str
+        :param satellite_data: The satellite_data of this HabitatAnalysisRequest.  # noqa: E501
+        :type satellite_data: str
         :param environmental_data: The environmental_data of this HabitatAnalysisRequest.  # noqa: E501
         :type environmental_data: HabitatAnalysisRequestEnvironmentalData
+        :param geographic_coordinates: The geographic_coordinates of this HabitatAnalysisRequest.  # noqa: E501
+        :type geographic_coordinates: HabitatAnalysisRequestGeographicCoordinates
+        :param analysis_parameters: The analysis_parameters of this HabitatAnalysisRequest.  # noqa: E501
+        :type analysis_parameters: HabitatAnalysisRequestAnalysisParameters
         """
         self.swagger_types = {
-            'region': str,
-            'satellite_image_url': str,
-            'environmental_data': HabitatAnalysisRequestEnvironmentalData
+            'satellite_data': str,
+            'environmental_data': HabitatAnalysisRequestEnvironmentalData,
+            'geographic_coordinates': HabitatAnalysisRequestGeographicCoordinates,
+            'analysis_parameters': HabitatAnalysisRequestAnalysisParameters
         }
 
         self.attribute_map = {
-            'region': 'region',
-            'satellite_image_url': 'satellite_image_url',
-            'environmental_data': 'environmental_data'
+            'satellite_data': 'satellite_data',
+            'environmental_data': 'environmental_data',
+            'geographic_coordinates': 'geographic_coordinates',
+            'analysis_parameters': 'analysis_parameters'
         }
-        self._region = region
-        self._satellite_image_url = satellite_image_url
+        self._satellite_data = satellite_data
         self._environmental_data = environmental_data
+        self._geographic_coordinates = geographic_coordinates
+        self._analysis_parameters = analysis_parameters
 
     @classmethod
     def from_dict(cls, dikt) -> 'HabitatAnalysisRequest':
@@ -52,50 +59,27 @@ class HabitatAnalysisRequest(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def region(self) -> str:
-        """Gets the region of this HabitatAnalysisRequest.
+    def satellite_data(self) -> str:
+        """Gets the satellite_data of this HabitatAnalysisRequest.
 
-        The region of interest (e.g., Nigeria).  # noqa: E501
+        Base64 encoded satellite image  # noqa: E501
 
-        :return: The region of this HabitatAnalysisRequest.
+        :return: The satellite_data of this HabitatAnalysisRequest.
         :rtype: str
         """
-        return self._region
+        return self._satellite_data
 
-    @region.setter
-    def region(self, region: str):
-        """Sets the region of this HabitatAnalysisRequest.
+    @satellite_data.setter
+    def satellite_data(self, satellite_data: str):
+        """Sets the satellite_data of this HabitatAnalysisRequest.
 
-        The region of interest (e.g., Nigeria).  # noqa: E501
+        Base64 encoded satellite image  # noqa: E501
 
-        :param region: The region of this HabitatAnalysisRequest.
-        :type region: str
+        :param satellite_data: The satellite_data of this HabitatAnalysisRequest.
+        :type satellite_data: str
         """
 
-        self._region = region
-
-    @property
-    def satellite_image_url(self) -> str:
-        """Gets the satellite_image_url of this HabitatAnalysisRequest.
-
-        URL of the satellite imagery for analysis.  # noqa: E501
-
-        :return: The satellite_image_url of this HabitatAnalysisRequest.
-        :rtype: str
-        """
-        return self._satellite_image_url
-
-    @satellite_image_url.setter
-    def satellite_image_url(self, satellite_image_url: str):
-        """Sets the satellite_image_url of this HabitatAnalysisRequest.
-
-        URL of the satellite imagery for analysis.  # noqa: E501
-
-        :param satellite_image_url: The satellite_image_url of this HabitatAnalysisRequest.
-        :type satellite_image_url: str
-        """
-
-        self._satellite_image_url = satellite_image_url
+        self._satellite_data = satellite_data
 
     @property
     def environmental_data(self) -> HabitatAnalysisRequestEnvironmentalData:
@@ -117,3 +101,45 @@ class HabitatAnalysisRequest(Model):
         """
 
         self._environmental_data = environmental_data
+
+    @property
+    def geographic_coordinates(self) -> HabitatAnalysisRequestGeographicCoordinates:
+        """Gets the geographic_coordinates of this HabitatAnalysisRequest.
+
+
+        :return: The geographic_coordinates of this HabitatAnalysisRequest.
+        :rtype: HabitatAnalysisRequestGeographicCoordinates
+        """
+        return self._geographic_coordinates
+
+    @geographic_coordinates.setter
+    def geographic_coordinates(self, geographic_coordinates: HabitatAnalysisRequestGeographicCoordinates):
+        """Sets the geographic_coordinates of this HabitatAnalysisRequest.
+
+
+        :param geographic_coordinates: The geographic_coordinates of this HabitatAnalysisRequest.
+        :type geographic_coordinates: HabitatAnalysisRequestGeographicCoordinates
+        """
+
+        self._geographic_coordinates = geographic_coordinates
+
+    @property
+    def analysis_parameters(self) -> HabitatAnalysisRequestAnalysisParameters:
+        """Gets the analysis_parameters of this HabitatAnalysisRequest.
+
+
+        :return: The analysis_parameters of this HabitatAnalysisRequest.
+        :rtype: HabitatAnalysisRequestAnalysisParameters
+        """
+        return self._analysis_parameters
+
+    @analysis_parameters.setter
+    def analysis_parameters(self, analysis_parameters: HabitatAnalysisRequestAnalysisParameters):
+        """Sets the analysis_parameters of this HabitatAnalysisRequest.
+
+
+        :param analysis_parameters: The analysis_parameters of this HabitatAnalysisRequest.
+        :type analysis_parameters: HabitatAnalysisRequestAnalysisParameters
+        """
+
+        self._analysis_parameters = analysis_parameters

@@ -20,10 +20,10 @@ REQUIRES = [
 setup(
     name=NAME,
     version=VERSION,
-    description="MNTRK by MoStar Industries AI Agent API",
-    author_email="akanimo@57vflx.onmicrosoft.com",
+    description="MNTRK API by MoStar Industries",
+    author_email="support@mo-overlord.tech",
     url="",
-    keywords=["Swagger", "MNTRK by MoStar Industries AI Agent API"],
+    keywords=["Swagger", "MNTRK API by MoStar Industries"],
     install_requires=REQUIRES,
     packages=find_packages(),
     package_data={'': ['swagger/swagger.yaml']},
@@ -31,6 +31,6 @@ setup(
     entry_points={
         'console_scripts': ['swagger_server=swagger_server.__main__:main']},
     long_description="""\
-    This API provides robust and accurate tools for tracking Mastomys Natalensis populations, analyzing ecological trends, and supporting Lassa fever outbreak management in Nigeria. Designed with a focus on real-time data, environmental analysis, and outbreak hotspots. This is the API for the AI agent, providing direct interaction with the AI system. 
+    This API provides robust tools for tracking Mastomys Natalensis populations, analyzing ecological trends, and supporting Lassa fever outbreak management. It is aligned with Nigeria CDC requirements and integrates with Supabase. 
     """
 )

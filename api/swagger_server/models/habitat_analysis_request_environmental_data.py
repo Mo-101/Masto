@@ -14,7 +14,7 @@ class HabitatAnalysisRequestEnvironmentalData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, temperature: float=None, rainfall: float=None, vegetation_index: float=None, soil_moisture: float=None, elevation: float=None):  # noqa: E501
+    def __init__(self, temperature: float=None, rainfall: float=None, vegetation_index: float=None):  # noqa: E501
         """HabitatAnalysisRequestEnvironmentalData - a model defined in Swagger
 
         :param temperature: The temperature of this HabitatAnalysisRequestEnvironmentalData.  # noqa: E501
@@ -23,31 +23,21 @@ class HabitatAnalysisRequestEnvironmentalData(Model):
         :type rainfall: float
         :param vegetation_index: The vegetation_index of this HabitatAnalysisRequestEnvironmentalData.  # noqa: E501
         :type vegetation_index: float
-        :param soil_moisture: The soil_moisture of this HabitatAnalysisRequestEnvironmentalData.  # noqa: E501
-        :type soil_moisture: float
-        :param elevation: The elevation of this HabitatAnalysisRequestEnvironmentalData.  # noqa: E501
-        :type elevation: float
         """
         self.swagger_types = {
             'temperature': float,
             'rainfall': float,
-            'vegetation_index': float,
-            'soil_moisture': float,
-            'elevation': float
+            'vegetation_index': float
         }
 
         self.attribute_map = {
             'temperature': 'temperature',
             'rainfall': 'rainfall',
-            'vegetation_index': 'vegetation_index',
-            'soil_moisture': 'soil_moisture',
-            'elevation': 'elevation'
+            'vegetation_index': 'vegetation_index'
         }
         self._temperature = temperature
         self._rainfall = rainfall
         self._vegetation_index = vegetation_index
-        self._soil_moisture = soil_moisture
-        self._elevation = elevation
 
     @classmethod
     def from_dict(cls, dikt) -> 'HabitatAnalysisRequestEnvironmentalData':
@@ -64,7 +54,6 @@ class HabitatAnalysisRequestEnvironmentalData(Model):
     def temperature(self) -> float:
         """Gets the temperature of this HabitatAnalysisRequestEnvironmentalData.
 
-        Average temperature in degrees Celsius.  # noqa: E501
 
         :return: The temperature of this HabitatAnalysisRequestEnvironmentalData.
         :rtype: float
@@ -75,7 +64,6 @@ class HabitatAnalysisRequestEnvironmentalData(Model):
     def temperature(self, temperature: float):
         """Sets the temperature of this HabitatAnalysisRequestEnvironmentalData.
 
-        Average temperature in degrees Celsius.  # noqa: E501
 
         :param temperature: The temperature of this HabitatAnalysisRequestEnvironmentalData.
         :type temperature: float
@@ -87,7 +75,6 @@ class HabitatAnalysisRequestEnvironmentalData(Model):
     def rainfall(self) -> float:
         """Gets the rainfall of this HabitatAnalysisRequestEnvironmentalData.
 
-        Average monthly rainfall in millimeters.  # noqa: E501
 
         :return: The rainfall of this HabitatAnalysisRequestEnvironmentalData.
         :rtype: float
@@ -98,7 +85,6 @@ class HabitatAnalysisRequestEnvironmentalData(Model):
     def rainfall(self, rainfall: float):
         """Sets the rainfall of this HabitatAnalysisRequestEnvironmentalData.
 
-        Average monthly rainfall in millimeters.  # noqa: E501
 
         :param rainfall: The rainfall of this HabitatAnalysisRequestEnvironmentalData.
         :type rainfall: float
@@ -110,7 +96,6 @@ class HabitatAnalysisRequestEnvironmentalData(Model):
     def vegetation_index(self) -> float:
         """Gets the vegetation_index of this HabitatAnalysisRequestEnvironmentalData.
 
-        Normalized vegetation index score (0 to 1 scale).  # noqa: E501
 
         :return: The vegetation_index of this HabitatAnalysisRequestEnvironmentalData.
         :rtype: float
@@ -121,56 +106,9 @@ class HabitatAnalysisRequestEnvironmentalData(Model):
     def vegetation_index(self, vegetation_index: float):
         """Sets the vegetation_index of this HabitatAnalysisRequestEnvironmentalData.
 
-        Normalized vegetation index score (0 to 1 scale).  # noqa: E501
 
         :param vegetation_index: The vegetation_index of this HabitatAnalysisRequestEnvironmentalData.
         :type vegetation_index: float
         """
 
         self._vegetation_index = vegetation_index
-
-    @property
-    def soil_moisture(self) -> float:
-        """Gets the soil_moisture of this HabitatAnalysisRequestEnvironmentalData.
-
-        Soil moisture level as a percentage (0-100%).  # noqa: E501
-
-        :return: The soil_moisture of this HabitatAnalysisRequestEnvironmentalData.
-        :rtype: float
-        """
-        return self._soil_moisture
-
-    @soil_moisture.setter
-    def soil_moisture(self, soil_moisture: float):
-        """Sets the soil_moisture of this HabitatAnalysisRequestEnvironmentalData.
-
-        Soil moisture level as a percentage (0-100%).  # noqa: E501
-
-        :param soil_moisture: The soil_moisture of this HabitatAnalysisRequestEnvironmentalData.
-        :type soil_moisture: float
-        """
-
-        self._soil_moisture = soil_moisture
-
-    @property
-    def elevation(self) -> float:
-        """Gets the elevation of this HabitatAnalysisRequestEnvironmentalData.
-
-        Elevation of the region in meters.  # noqa: E501
-
-        :return: The elevation of this HabitatAnalysisRequestEnvironmentalData.
-        :rtype: float
-        """
-        return self._elevation
-
-    @elevation.setter
-    def elevation(self, elevation: float):
-        """Sets the elevation of this HabitatAnalysisRequestEnvironmentalData.
-
-        Elevation of the region in meters.  # noqa: E501
-
-        :param elevation: The elevation of this HabitatAnalysisRequestEnvironmentalData.
-        :type elevation: float
-        """
-
-        self._elevation = elevation

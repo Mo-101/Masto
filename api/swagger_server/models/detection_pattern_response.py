@@ -6,7 +6,9 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
-from swagger_server.models.detection_pattern_response_detections import DetectionPatternResponseDetections  # noqa: F401,E501
+from swagger_server.models.biometric_profile import BiometricProfile  # noqa: F401,E501
+from swagger_server.models.detection_pattern_response_environmental_context import DetectionPatternResponseEnvironmentalContext  # noqa: F401,E501
+from swagger_server.models.habitat_analysis_request_geographic_coordinates import HabitatAnalysisRequestGeographicCoordinates  # noqa: F401,E501
 from swagger_server import util
 
 
@@ -15,20 +17,40 @@ class DetectionPatternResponse(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, detections: List[DetectionPatternResponseDetections]=None):  # noqa: E501
+    def __init__(self, id: int=None, location: HabitatAnalysisRequestGeographicCoordinates=None, detection_timestamp: datetime=None, biometric_data: BiometricProfile=None, environmental_context: DetectionPatternResponseEnvironmentalContext=None):  # noqa: E501
         """DetectionPatternResponse - a model defined in Swagger
 
-        :param detections: The detections of this DetectionPatternResponse.  # noqa: E501
-        :type detections: List[DetectionPatternResponseDetections]
+        :param id: The id of this DetectionPatternResponse.  # noqa: E501
+        :type id: int
+        :param location: The location of this DetectionPatternResponse.  # noqa: E501
+        :type location: HabitatAnalysisRequestGeographicCoordinates
+        :param detection_timestamp: The detection_timestamp of this DetectionPatternResponse.  # noqa: E501
+        :type detection_timestamp: datetime
+        :param biometric_data: The biometric_data of this DetectionPatternResponse.  # noqa: E501
+        :type biometric_data: BiometricProfile
+        :param environmental_context: The environmental_context of this DetectionPatternResponse.  # noqa: E501
+        :type environmental_context: DetectionPatternResponseEnvironmentalContext
         """
         self.swagger_types = {
-            'detections': List[DetectionPatternResponseDetections]
+            'id': int,
+            'location': HabitatAnalysisRequestGeographicCoordinates,
+            'detection_timestamp': datetime,
+            'biometric_data': BiometricProfile,
+            'environmental_context': DetectionPatternResponseEnvironmentalContext
         }
 
         self.attribute_map = {
-            'detections': 'detections'
+            'id': 'id',
+            'location': 'location',
+            'detection_timestamp': 'detection_timestamp',
+            'biometric_data': 'biometric_data',
+            'environmental_context': 'environmental_context'
         }
-        self._detections = detections
+        self._id = id
+        self._location = location
+        self._detection_timestamp = detection_timestamp
+        self._biometric_data = biometric_data
+        self._environmental_context = environmental_context
 
     @classmethod
     def from_dict(cls, dikt) -> 'DetectionPatternResponse':
@@ -42,24 +64,108 @@ class DetectionPatternResponse(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def detections(self) -> List[DetectionPatternResponseDetections]:
-        """Gets the detections of this DetectionPatternResponse.
+    def id(self) -> int:
+        """Gets the id of this DetectionPatternResponse.
 
-        List of detected objects and their metrics.  # noqa: E501
 
-        :return: The detections of this DetectionPatternResponse.
-        :rtype: List[DetectionPatternResponseDetections]
+        :return: The id of this DetectionPatternResponse.
+        :rtype: int
         """
-        return self._detections
+        return self._id
 
-    @detections.setter
-    def detections(self, detections: List[DetectionPatternResponseDetections]):
-        """Sets the detections of this DetectionPatternResponse.
+    @id.setter
+    def id(self, id: int):
+        """Sets the id of this DetectionPatternResponse.
 
-        List of detected objects and their metrics.  # noqa: E501
 
-        :param detections: The detections of this DetectionPatternResponse.
-        :type detections: List[DetectionPatternResponseDetections]
+        :param id: The id of this DetectionPatternResponse.
+        :type id: int
         """
 
-        self._detections = detections
+        self._id = id
+
+    @property
+    def location(self) -> HabitatAnalysisRequestGeographicCoordinates:
+        """Gets the location of this DetectionPatternResponse.
+
+
+        :return: The location of this DetectionPatternResponse.
+        :rtype: HabitatAnalysisRequestGeographicCoordinates
+        """
+        return self._location
+
+    @location.setter
+    def location(self, location: HabitatAnalysisRequestGeographicCoordinates):
+        """Sets the location of this DetectionPatternResponse.
+
+
+        :param location: The location of this DetectionPatternResponse.
+        :type location: HabitatAnalysisRequestGeographicCoordinates
+        """
+
+        self._location = location
+
+    @property
+    def detection_timestamp(self) -> datetime:
+        """Gets the detection_timestamp of this DetectionPatternResponse.
+
+        Precise timestamp when the detection occurred  # noqa: E501
+
+        :return: The detection_timestamp of this DetectionPatternResponse.
+        :rtype: datetime
+        """
+        return self._detection_timestamp
+
+    @detection_timestamp.setter
+    def detection_timestamp(self, detection_timestamp: datetime):
+        """Sets the detection_timestamp of this DetectionPatternResponse.
+
+        Precise timestamp when the detection occurred  # noqa: E501
+
+        :param detection_timestamp: The detection_timestamp of this DetectionPatternResponse.
+        :type detection_timestamp: datetime
+        """
+
+        self._detection_timestamp = detection_timestamp
+
+    @property
+    def biometric_data(self) -> BiometricProfile:
+        """Gets the biometric_data of this DetectionPatternResponse.
+
+
+        :return: The biometric_data of this DetectionPatternResponse.
+        :rtype: BiometricProfile
+        """
+        return self._biometric_data
+
+    @biometric_data.setter
+    def biometric_data(self, biometric_data: BiometricProfile):
+        """Sets the biometric_data of this DetectionPatternResponse.
+
+
+        :param biometric_data: The biometric_data of this DetectionPatternResponse.
+        :type biometric_data: BiometricProfile
+        """
+
+        self._biometric_data = biometric_data
+
+    @property
+    def environmental_context(self) -> DetectionPatternResponseEnvironmentalContext:
+        """Gets the environmental_context of this DetectionPatternResponse.
+
+
+        :return: The environmental_context of this DetectionPatternResponse.
+        :rtype: DetectionPatternResponseEnvironmentalContext
+        """
+        return self._environmental_context
+
+    @environmental_context.setter
+    def environmental_context(self, environmental_context: DetectionPatternResponseEnvironmentalContext):
+        """Sets the environmental_context of this DetectionPatternResponse.
+
+
+        :param environmental_context: The environmental_context of this DetectionPatternResponse.
+        :type environmental_context: DetectionPatternResponseEnvironmentalContext
+        """
+
+        self._environmental_context = environmental_context

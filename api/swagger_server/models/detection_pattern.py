@@ -6,6 +6,9 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
+from swagger_server.models.biometric_profile import BiometricProfile  # noqa: F401,E501
+from swagger_server.models.habitat_analysis_request_geographic_coordinates import HabitatAnalysisRequestGeographicCoordinates  # noqa: F401,E501
+from swagger_server.models.habitat_analysis_response_temporal_pattern import HabitatAnalysisResponseTemporalPattern  # noqa: F401,E501
 from swagger_server import util
 
 
@@ -14,20 +17,40 @@ class DetectionPattern(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, image_url: str=None):  # noqa: E501
+    def __init__(self, id: int=None, location: HabitatAnalysisRequestGeographicCoordinates=None, detection_timestamp: datetime=None, temporal_pattern: HabitatAnalysisResponseTemporalPattern=None, biometric_data: BiometricProfile=None):  # noqa: E501
         """DetectionPattern - a model defined in Swagger
 
-        :param image_url: The image_url of this DetectionPattern.  # noqa: E501
-        :type image_url: str
+        :param id: The id of this DetectionPattern.  # noqa: E501
+        :type id: int
+        :param location: The location of this DetectionPattern.  # noqa: E501
+        :type location: HabitatAnalysisRequestGeographicCoordinates
+        :param detection_timestamp: The detection_timestamp of this DetectionPattern.  # noqa: E501
+        :type detection_timestamp: datetime
+        :param temporal_pattern: The temporal_pattern of this DetectionPattern.  # noqa: E501
+        :type temporal_pattern: HabitatAnalysisResponseTemporalPattern
+        :param biometric_data: The biometric_data of this DetectionPattern.  # noqa: E501
+        :type biometric_data: BiometricProfile
         """
         self.swagger_types = {
-            'image_url': str
+            'id': int,
+            'location': HabitatAnalysisRequestGeographicCoordinates,
+            'detection_timestamp': datetime,
+            'temporal_pattern': HabitatAnalysisResponseTemporalPattern,
+            'biometric_data': BiometricProfile
         }
 
         self.attribute_map = {
-            'image_url': 'image_url'
+            'id': 'id',
+            'location': 'location',
+            'detection_timestamp': 'detection_timestamp',
+            'temporal_pattern': 'temporal_pattern',
+            'biometric_data': 'biometric_data'
         }
-        self._image_url = image_url
+        self._id = id
+        self._location = location
+        self._detection_timestamp = detection_timestamp
+        self._temporal_pattern = temporal_pattern
+        self._biometric_data = biometric_data
 
     @classmethod
     def from_dict(cls, dikt) -> 'DetectionPattern':
@@ -41,24 +64,108 @@ class DetectionPattern(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def image_url(self) -> str:
-        """Gets the image_url of this DetectionPattern.
+    def id(self) -> int:
+        """Gets the id of this DetectionPattern.
 
-        URL of the image to analyze.  # noqa: E501
 
-        :return: The image_url of this DetectionPattern.
-        :rtype: str
+        :return: The id of this DetectionPattern.
+        :rtype: int
         """
-        return self._image_url
+        return self._id
 
-    @image_url.setter
-    def image_url(self, image_url: str):
-        """Sets the image_url of this DetectionPattern.
+    @id.setter
+    def id(self, id: int):
+        """Sets the id of this DetectionPattern.
 
-        URL of the image to analyze.  # noqa: E501
 
-        :param image_url: The image_url of this DetectionPattern.
-        :type image_url: str
+        :param id: The id of this DetectionPattern.
+        :type id: int
         """
 
-        self._image_url = image_url
+        self._id = id
+
+    @property
+    def location(self) -> HabitatAnalysisRequestGeographicCoordinates:
+        """Gets the location of this DetectionPattern.
+
+
+        :return: The location of this DetectionPattern.
+        :rtype: HabitatAnalysisRequestGeographicCoordinates
+        """
+        return self._location
+
+    @location.setter
+    def location(self, location: HabitatAnalysisRequestGeographicCoordinates):
+        """Sets the location of this DetectionPattern.
+
+
+        :param location: The location of this DetectionPattern.
+        :type location: HabitatAnalysisRequestGeographicCoordinates
+        """
+
+        self._location = location
+
+    @property
+    def detection_timestamp(self) -> datetime:
+        """Gets the detection_timestamp of this DetectionPattern.
+
+        Precise timestamp when the detection occurred  # noqa: E501
+
+        :return: The detection_timestamp of this DetectionPattern.
+        :rtype: datetime
+        """
+        return self._detection_timestamp
+
+    @detection_timestamp.setter
+    def detection_timestamp(self, detection_timestamp: datetime):
+        """Sets the detection_timestamp of this DetectionPattern.
+
+        Precise timestamp when the detection occurred  # noqa: E501
+
+        :param detection_timestamp: The detection_timestamp of this DetectionPattern.
+        :type detection_timestamp: datetime
+        """
+
+        self._detection_timestamp = detection_timestamp
+
+    @property
+    def temporal_pattern(self) -> HabitatAnalysisResponseTemporalPattern:
+        """Gets the temporal_pattern of this DetectionPattern.
+
+
+        :return: The temporal_pattern of this DetectionPattern.
+        :rtype: HabitatAnalysisResponseTemporalPattern
+        """
+        return self._temporal_pattern
+
+    @temporal_pattern.setter
+    def temporal_pattern(self, temporal_pattern: HabitatAnalysisResponseTemporalPattern):
+        """Sets the temporal_pattern of this DetectionPattern.
+
+
+        :param temporal_pattern: The temporal_pattern of this DetectionPattern.
+        :type temporal_pattern: HabitatAnalysisResponseTemporalPattern
+        """
+
+        self._temporal_pattern = temporal_pattern
+
+    @property
+    def biometric_data(self) -> BiometricProfile:
+        """Gets the biometric_data of this DetectionPattern.
+
+
+        :return: The biometric_data of this DetectionPattern.
+        :rtype: BiometricProfile
+        """
+        return self._biometric_data
+
+    @biometric_data.setter
+    def biometric_data(self, biometric_data: BiometricProfile):
+        """Sets the biometric_data of this DetectionPattern.
+
+
+        :param biometric_data: The biometric_data of this DetectionPattern.
+        :type biometric_data: BiometricProfile
+        """
+
+        self._biometric_data = biometric_data

@@ -21,13 +21,13 @@ python3 -m swagger_server
 and open your browser to here:
 
 ```
-http://localhost:8080/marv-b24/MostarInT/1.0.1/ui/
+http://localhost:8080/marv-b24/MNTRK/1.0.1/ui/
 ```
 
 Your Swagger definition lives here:
 
 ```
-http://localhost:8080/marv-b24/MostarInT/1.0.1/swagger.json
+http://localhost:8080/marv-b24/MNTRK/1.0.1/swagger.json
 ```
 
 To launch the integration tests, use tox:
