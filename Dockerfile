@@ -17,7 +17,10 @@ RUN apt-get update && apt-get install -y \
 # Copy application code
 COPY . .
 
-RUN pip install --upgrade pip
+# Install setuptools to handle distutils dependency
+RUN pip install --upgrade pip setuptools wheel
+
+# Install Python dependencies
 RUN pip install -r requirements.txt
 
 # Expose port
