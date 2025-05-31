@@ -1,0 +1,86 @@
+version: '3.9'
+
+services:
+  sovereign-app:
+    build: .
+    image: mntrk-sovereign:latest
+    container_name: sovereign-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - DATABASE_URL=postgresql://postgres:postgres@neon-db:5432/sovereign_mntrk
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - neon-db
+      - redis-cache
+    networks:
+      - sovereign-network
+    env_file:
+      - .env
+
+  neon-db:
+    image: postgres:15-alpine
+    container_name: sovereign-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sovereign_mntrk
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sovereign-network
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: sovereign-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sovereign-network
+
+  sovereign-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mntrk-sovereign:latest
+    container_name: sovereign-worker
+    restart: unless-stopped
+    command: python worker.py
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@neon-db:5432/sovereign_mntrk
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - REDIS_URL=redis://redis-cache:6379
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+    depends_on:
+      - neon-db
+      - redis-cache
+    networks:
+      - sovereign-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  sovereign-network:
+    driver: bridge

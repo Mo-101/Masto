@@ -1,0 +1,138 @@
+version: '3.9'
+
+services:
+  # Sovereign API Backend
+  mntrk-api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: mntrk-sovereign:latest
+    container_name: sovereign-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - DATABASE_URL=${DATABASE_URL}
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - MOSTLYAI_API_KEY=${MOSTLYAI_API_KEY}
+    volumes:
+      - ../models:/app/models
+      - ../logs:/app/logs
+      - ../data:/app/data
+      - firebase-credentials:/app/credentials:ro
+    depends_on:
+      - neon-db
+      - redis-cache
+    networks:
+      - sovereign-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Edge Inference Node
+  edge-inference:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.edge
+    image: mntrk-edge:latest
+    container_name: sovereign-edge
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - EDGE_DEVICE_ID=edge_001
+      - CENTRAL_API_URL=http://mntrk-api:8080
+      - SYNC_INTERVAL=300
+    volumes:
+      - ../edge/models:/app/models
+      - ../edge/data:/app/data
+    depends_on:
+      - mntrk-api
+    networks:
+      - sovereign-network
+
+  # Cesium Observatory UI
+  observatory-ui:
+    build:
+      context: ../observatory
+      dockerfile: Dockerfile
+    image: mntrk-observatory:latest
+    container_name: sovereign-observatory
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_CESIUM_TOKEN=${CESIUM_ACCESS_TOKEN}
+    depends_on:
+      - mntrk-api
+    networks:
+      - sovereign-network
+
+  # PostgreSQL Database (Neon-compatible)
+  neon-db:
+    image: postgres:15-alpine
+    container_name: sovereign-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sovereign_password}
+      POSTGRES_DB: sovereign_mntrk
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../deploy/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - sovereign-network
+
+  # Redis Cache
+  redis-cache:
+    image: redis:7-alpine
+    container_name: sovereign-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sovereign-network
+    command: redis-server --appendonly yes
+
+  # ML Training Worker
+  ml-worker:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: mntrk-sovereign:latest
+    container_name: sovereign-ml-worker
+    restart: unless-stopped
+    command: python -m ml_pipeline.training_worker
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - REDIS_URL=redis://redis-cache:6379
+    volumes:
+      - ../models:/app/models
+      - ../logs:/app/logs
+    depends_on:
+      - neon-db
+      - redis-cache
+    networks:
+      - sovereign-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  firebase-credentials:
+
+networks:
+  sovereign-network:
+    driver: bridge
+    name: mntrk-sovereign-network

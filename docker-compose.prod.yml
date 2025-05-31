@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      # Optionally specify a Dockerfile if not named 'Dockerfile' or in a different location
+      # dockerfile: Dockerfile.prod 
+    image: flask-mntrk-app:latest # Tag your image
+    container_name: flask-mntrk-prod
+    restart: unless-stopped
+    ports:
+      - "5000:5000" # Map host port 5000 to container port 5000 (where Gunicorn runs)
+    environment:
+      # Essential runtime environment variables
+      FLASK_APP: "app:create_app()" # Tells Gunicorn how to find the app factory
+      FLASK_DEBUG: "false" # Ensure debug mode is off in production
+      # DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY} # Pass from .env file or CI/CD environment
+      # FIREBASE_CREDENTIALS: /app/serviceAccountKey.json # Path inside the container if copied by Dockerfile
+
+      # Connexion validation flags (can be controlled via env)
+      VALIDATE_REQUESTS: "true"
+      VALIDATE_RESPONSES: "false" # Often disabled in prod for performance, but can be true
+
+      # Gunicorn specific settings (optional, can also be in CMD of Dockerfile)
+      # GUNICORN_CMD_ARGS: "--workers 4 --worker-class uvicorn.workers.UvicornWorker" # If using async with Uvicorn
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-4} # Number of worker processes
+      GUNICORN_TIMEOUT: ${GUNICORN_TIMEOUT:-120} # Worker timeout in seconds
+      # LOG_LEVEL: "INFO" # If your app uses this for logging configuration
+
+    # Option 1: Using Docker Secrets for Firebase credentials (recommended for Swarm/K8s)
+    # secrets:
+    #   - firebase_service_account_key
+
+    # Option 2: Using a volume mount for Firebase credentials (simpler for single host, ensure file is secure)
+    # Ensure serviceAccountKey.json is present on the host and its path is correct.
+    # This file should NOT be in your Git repository.
+    volumes:
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro # Mount as read-only
+      # - ./logs:/app/logs # Example: Mount a logs directory if your app writes logs to files
+
+    # If you are using an external .env file with docker-compose
+    env_file:
+      - .env.prod # Create a .env.prod file for production-specific variables
+
+    # Basic healthcheck for the container
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s # Give time for app to start
+
+# Define the secret if using Option 1
+# secrets:
+#   firebase_service_account_key:
+#     file: ./serviceAccountKey.json # Path to the key on the Docker host machine during deployment
