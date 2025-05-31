@@ -1,25 +1,86 @@
-version: '3.8'
-services:
-  app:
-    build: . # Assumes your Dockerfile is in the current directory
-    ports:
-      - '5000:5000'
-    environment:
-      # This path should correspond to where you COPY the credentials file in your Dockerfile
-      FIREBASE_CREDENTIALS: /app/serviceAccountKey.json 
-      FLASK_DEBUG: 'true' # Or 'false' for production
-      FLASK_APP: 'app.py' # Explicitly set for clarity, though often inferred
-      # DEEPSEEK_API_KEY should be securely managed, e.g., injected by CI/CD or Vercel env vars
-      # For local docker-compose, you can use a .env file (docker-compose automatically loads it)
-      # or pass it directly if not sensitive for local dev.
-      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY} 
-    volumes:
-      # If you are developing locally and want to map your local firebase credentials
-      # ensure the source path is correct and the target path matches FIREBASE_CREDENTIALS
-      # Example:
-      # - ./path/to/your/local/serviceAccountKey.json:/app/serviceAccountKey.json:ro
-      # The :ro makes it read-only in the container, which is good practice for credentials.
-      # Ensure your .gitignore includes your actual credentials file.
-      - .:/app # Mounts the current directory to /app in the container for hot-reloading (dev only)
+version: '3.9'
 
-# Removed 'db' service (Postgres) and 'db_data' volume
+services:
+  sovereign-app:
+    build: .
+    image: mntrk-sovereign:latest
+    container_name: sovereign-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - DATABASE_URL=postgresql://postgres:postgres@neon-db:5432/sovereign_mntrk
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - neon-db
+      - redis-cache
+    networks:
+      - sovereign-network
+    env_file:
+      - .env
+
+  neon-db:
+    image: postgres:15-alpine
+    container_name: sovereign-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sovereign_mntrk
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sovereign-network
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: sovereign-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sovereign-network
+
+  sovereign-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mntrk-sovereign:latest
+    container_name: sovereign-worker
+    restart: unless-stopped
+    command: python worker.py
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@neon-db:5432/sovereign_mntrk
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - REDIS_URL=redis://redis-cache:6379
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+    depends_on:
+      - neon-db
+      - redis-cache
+    networks:
+      - sovereign-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  sovereign-network:
+    driver: bridge

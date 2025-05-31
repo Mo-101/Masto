@@ -1,161 +1,207 @@
 import os
-import asyncio
-from contextlib import asynccontextmanager
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime, Text, DECIMAL, ARRAY, JSON
-from sqlalchemy.sql import func
+import firebase_admin
+from firebase_admin import credentials, firestore
 from flask import current_app
-from neon import neon
+from datetime import datetime, timezone
 
-# Database configuration
-DATABASE_URL = os.getenv('DATABASE_URL')
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is required")
+# Global variable to store the Firestore client
+_firestore_client = None
 
-# Create async engine for SQLAlchemy
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=True if os.getenv('DEBUG') == 'true' else False,
-    future=True
-)
-
-# Create async session factory
-AsyncSessionLocal = async_sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False
-)
-
-# Create Neon SQL client for direct queries
-sql = neon(DATABASE_URL)
-
-# SQLAlchemy Base
-Base = declarative_base()
-
-# Database Models
-class DetectionPattern(Base):
-    __tablename__ = 'detection_patterns'
-    __table_args__ = {'schema': 'mntrk'}
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(String)
-    latitude = Column(DECIMAL(10, 8))
-    longitude = Column(DECIMAL(11, 8))
-    detection_timestamp = Column(DateTime(timezone=True), server_default=func.now())
-    confidence_score = Column(DECIMAL(5, 4))
-    detection_method = Column(String(50))
-    image_url = Column(Text)
-    environmental_context = Column(JSON)
-    notes = Column(Text)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now())
-
-class HabitatAnalysis(Base):
-    __tablename__ = 'habitat_analyses'
-    __table_args__ = {'schema': 'mntrk'}
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(String)
-    region_name = Column(String(255))
-    latitude = Column(DECIMAL(10, 8))
-    longitude = Column(DECIMAL(11, 8))
-    suitability_score = Column(DECIMAL(5, 4))
-    analysis_timestamp = Column(DateTime(timezone=True), server_default=func.now())
-    satellite_image_url = Column(Text)
-    environmental_data = Column(JSON)
-    risk_factors = Column(ARRAY(Text))
-    analysis_parameters = Column(JSON)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now())
-
-class AIPrediction(Base):
-    __tablename__ = 'ai_predictions'
-    __table_args__ = {'schema': 'mntrk'}
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(String)
-    prediction_type = Column(String(50))
-    input_data = Column(JSON)
-    prediction_result = Column(JSON)
-    model_version = Column(String(50))
-    confidence_score = Column(DECIMAL(5, 4))
-    prediction_timestamp = Column(DateTime(timezone=True), server_default=func.now())
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-# Database functions
 def init_db(app):
-    """Initialize database connection for Flask app."""
-    app.logger.info("Database initialized with Neon PostgreSQL")
-
-@asynccontextmanager
-async def get_async_session():
-    """Get async database session."""
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception:
-            await session.rollback()
+    """Initialize Firebase Admin SDK and Firestore client."""
+    global _firestore_client
+    
+    try:
+        # Get Firebase credentials from environment variable
+        firebase_creds_path = app.config.get('FIREBASE_CREDENTIALS')
+        
+        if not firebase_creds_path:
+            if app.config.get('DEBUG'):
+                app.logger.warning("FIREBASE_CREDENTIALS not set. Using default credentials in debug mode.")
+                cred = credentials.ApplicationDefault()
+            else:
+                raise ValueError("FIREBASE_CREDENTIALS environment variable is required in production")
+        else:
+            # Use service account credentials
+            if os.path.exists(firebase_creds_path):
+                cred = credentials.Certificate(firebase_creds_path)
+            else:
+                # Assume it's a JSON string (for environment variables containing JSON)
+                import json
+                cred_dict = json.loads(firebase_creds_path)
+                cred = credentials.Certificate(cred_dict)
+        
+        # Initialize Firebase Admin SDK
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(cred)
+            app.logger.info("Firebase Admin SDK initialized successfully")
+        
+        # Initialize Firestore client
+        _firestore_client = firestore.client()
+        app.logger.info("Firestore client initialized successfully")
+        
+    except Exception as e:
+        app.logger.error(f"Failed to initialize Firebase/Firestore: {e}")
+        if not app.config.get('DEBUG'):
             raise
-        finally:
-            await session.close()
+        else:
+            app.logger.warning("Continuing in debug mode without Firebase connection")
 
-async def get_neon_sql():
-    """Get Neon SQL client for direct queries."""
-    return sql
+def get_db():
+    """Get the Firestore client instance."""
+    global _firestore_client
+    
+    if _firestore_client is None:
+        if current_app and current_app.config.get('DEBUG'):
+            current_app.logger.warning("Firestore client not initialized. This might be expected in test/debug mode.")
+        raise RuntimeError("Firestore client not initialized. Call init_db() first.")
+    
+    return _firestore_client
 
-# Sync wrapper for Flask routes
-def get_db_sync():
-    """Synchronous database access for Flask routes."""
-    return sql
+# Firebase Firestore operations
+def create_detection_pattern(data: dict):
+    """Create a new detection pattern record in Firestore."""
+    try:
+        db = get_db()
+        
+        # Add server timestamp
+        data['created_at'] = firestore.SERVER_TIMESTAMP
+        data['updated_at'] = firestore.SERVER_TIMESTAMP
+        
+        # Create document with auto-generated ID
+        doc_ref = db.collection('detection_patterns').document()
+        doc_ref.set(data)
+        
+        return doc_ref.id
+    except Exception as e:
+        current_app.logger.error(f"Failed to create detection pattern: {e}")
+        raise
 
-# Database operations
-async def create_detection_pattern(data: dict):
-    """Create a new detection pattern record."""
-    async with get_async_session() as session:
-        pattern = DetectionPattern(**data)
-        session.add(pattern)
-        await session.flush()
-        return pattern.id
+def create_habitat_analysis(data: dict):
+    """Create a new habitat analysis record in Firestore."""
+    try:
+        db = get_db()
+        
+        # Add server timestamp
+        data['created_at'] = firestore.SERVER_TIMESTAMP
+        data['updated_at'] = firestore.SERVER_TIMESTAMP
+        
+        # Create document with auto-generated ID
+        doc_ref = db.collection('habitat_analyses').document()
+        doc_ref.set(data)
+        
+        return doc_ref.id
+    except Exception as e:
+        current_app.logger.error(f"Failed to create habitat analysis: {e}")
+        raise
 
-async def create_habitat_analysis(data: dict):
-    """Create a new habitat analysis record."""
-    async with get_async_session() as session:
-        analysis = HabitatAnalysis(**data)
-        session.add(analysis)
-        await session.flush()
-        return analysis.id
+def create_ai_prediction(data: dict):
+    """Create a new AI prediction record in Firestore."""
+    try:
+        db = get_db()
+        
+        # Add server timestamp
+        data['created_at'] = firestore.SERVER_TIMESTAMP
+        
+        # Create document with auto-generated ID
+        doc_ref = db.collection('ai_predictions').document()
+        doc_ref.set(data)
+        
+        return doc_ref.id
+    except Exception as e:
+        current_app.logger.error(f"Failed to create AI prediction: {e}")
+        raise
 
-async def create_ai_prediction(data: dict):
-    """Create a new AI prediction record."""
-    async with get_async_session() as session:
-        prediction = AIPrediction(**data)
-        session.add(prediction)
-        await session.flush()
-        return prediction.id
+def query_recent_detections(limit: int = 10):
+    """Query recent detection patterns from Firestore."""
+    try:
+        db = get_db()
+        
+        # Query recent detections ordered by timestamp
+        docs = db.collection('detection_patterns')\
+                .order_by('detection_timestamp', direction=firestore.Query.DESCENDING)\
+                .limit(limit)\
+                .stream()
+        
+        results = []
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            results.append(data)
+        
+        return results
+    except Exception as e:
+        current_app.logger.error(f"Failed to query recent detections: {e}")
+        raise
 
-# Direct SQL queries using Neon
-async def query_recent_detections(limit: int = 10):
-    """Query recent detection patterns using Neon SQL."""
-    result = await sql("""
-        SELECT id, latitude, longitude, detection_timestamp, confidence_score
-        FROM mntrk.detection_patterns 
-        ORDER BY detection_timestamp DESC 
-        LIMIT $1
-    """, limit)
-    return result
+def query_habitat_analyses_by_region(latitude: float, longitude: float, radius_km: float = 10, limit: int = 20):
+    """Query habitat analyses within a geographic region."""
+    try:
+        db = get_db()
+        
+        # For geographic queries, we'll use a simple bounding box approach
+        # In production, you might want to use more sophisticated geospatial queries
+        lat_delta = radius_km / 111.0  # Rough conversion: 1 degree ≈ 111 km
+        lon_delta = radius_km / (111.0 * abs(latitude))  # Adjust for latitude
+        
+        docs = db.collection('habitat_analyses')\
+                .where('latitude', '>=', latitude - lat_delta)\
+                .where('latitude', '<=', latitude + lat_delta)\
+                .order_by('analysis_timestamp', direction=firestore.Query.DESCENDING)\
+                .limit(limit)\
+                .stream()
+        
+        results = []
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            # Additional longitude filtering
+            if abs(data.get('longitude', 0) - longitude) <= lon_delta:
+                results.append(data)
+        
+        return results
+    except Exception as e:
+        current_app.logger.error(f"Failed to query habitat analyses: {e}")
+        raise
 
-async def query_habitat_suitability(lat: float, lon: float, radius_km: float = 10):
-    """Query habitat suitability in a geographic area."""
-    result = await sql("""
-        SELECT AVG(suitability_score) as avg_suitability,
-               COUNT(*) as analysis_count
-        FROM mntrk.habitat_analyses
-        WHERE ST_DWithin(
-            ST_Point(longitude, latitude)::geography,
-            ST_Point($2, $1)::geography,
-            $3 * 1000
-        )
-    """, lat, lon, radius_km)
-    return result[0] if result else None
+def get_detection_pattern_by_id(detection_id: str):
+    """Get a specific detection pattern by ID."""
+    try:
+        db = get_db()
+        doc = db.collection('detection_patterns').document(detection_id).get()
+        
+        if doc.exists:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            return data
+        else:
+            return None
+    except Exception as e:
+        current_app.logger.error(f"Failed to get detection pattern: {e}")
+        raise
+
+def update_detection_pattern(detection_id: str, update_data: dict):
+    """Update a detection pattern record."""
+    try:
+        db = get_db()
+        
+        # Add update timestamp
+        update_data['updated_at'] = firestore.SERVER_TIMESTAMP
+        
+        # Update document
+        db.collection('detection_patterns').document(detection_id).update(update_data)
+        
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Failed to update detection pattern: {e}")
+        raise
+
+def delete_detection_pattern(detection_id: str):
+    """Delete a detection pattern record."""
+    try:
+        db = get_db()
+        db.collection('detection_patterns').document(detection_id).delete()
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Failed to delete detection pattern: {e}")
+        raise
