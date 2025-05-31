@@ -1,30 +1,164 @@
-# Flask project setup
+# 🛡️ MNTRK Sovereign Neuro-Symbolic Bio-Intelligence Grid
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+---
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/mo-101s-projects/v0-flask-project-setup)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/UlWAocw5ul4)
+## 🔬 Project Overview
 
-## Overview
+The MNTRK project is a **Sovereign Biosurveillance Platform** built for:
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+- 🧠 **Hybrid Neuro-Symbolic Intelligence**
+- 🔄 **Real-time Adaptive Learning**
+- 📊 **Spatiotemporal Predictive Modeling**
+- 🔐 **Secure Cloud-Native Deployment**
+- 🚀 **True Sovereign Bio-Intelligence Operations**
 
-## Deployment
+---
 
-Your project is live at:
+## ⚙️ Core Technology Stack
 
-**[https://vercel.com/mo-101s-projects/v0-flask-project-setup](https://vercel.com/mo-101s-projects/v0-flask-project-setup)**
+| Layer | Technology |
+| ----- | ---------- |
+| 🔥 Realtime DB | Firebase Firestore |
+| 🧬 Historical Archive | NeonDB (Postgres) |
+| 🧠 Machine Learning | scikit-learn |
+| 🔎 Symbolic Reasoning | experta + networkx |
+| 🌐 API Framework | FastAPI (or Flask+Connexion) |
+| 🐳 Deployment | Docker |
+| 🔧 CI/CD | GitHub Actions |
+| 🔐 Secure Config | python-dotenv |
+| 🔬 Synthetic Data | MostlyAI SDK |
 
-## Build your app
+---
 
-Continue building your app on:
+## 🌐 Architecture Summary
 
-**[https://v0.dev/chat/projects/UlWAocw5ul4](https://v0.dev/chat/projects/UlWAocw5ul4)**
+```plaintext
+Field Data ➔ Firestore ➔ Cloud Functions ➔ Adaptive ML
+         ➔ NeonDB ➔ Historical ML Fusion
+         ➔ Neuro-Symbolic Inference Engine
+         ➔ Fusion Decision Layer ➔ Explainable Predictions
+```
 
-## How It Works
+---
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## 🔑 Secure Configuration (.env)
+
+Create `.env` file (NEVER commit this):
+
+```env
+DATABASE_URL=postgresql://your-user:your-password@your-neon-host.neon.tech:5432/mntrk_sovereign?sslmode=require
+FIREBASE_CREDENTIALS=/absolute/path/to/firebase-credentials.json
+MOSTLYAI_API_KEY=your-mostlyai-api-key
+```
+
+---
+
+## 🔧 Installation & Setup
+
+### 1️⃣ Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2️⃣ Create Database Schema (NeonDB)
+
+```bash
+python create_neon_schema.py
+```
+
+### 3️⃣ Bootstrap Firestore Collections
+
+```bash
+python create_firestore_collections.py
+```
+
+### 4️⃣ Test Real Connections
+
+```bash
+python setup/real_firebase_test.py
+python setup/neon_db_test.py
+```
+
+---
+
+## 🚀 Local Development
+
+### 1️⃣ Launch API Server
+
+```bash
+python app.py
+```
+
+### 2️⃣ Hybrid Model Training Trigger
+
+```bash
+python orchestrator_hybrid_training.py
+```
+
+---
+
+## 🔄 Sovereign Training Pipeline Flow
+
+1. 🔥 Pull last 30 days from Firestore (Adaptive Data)
+2. 🗄 Merge with full NeonDB historical archive
+3. 🧠 Train ML model (Random Forest, etc.)
+4. 🔎 Apply Symbolic Reasoning Layer (experta)
+5. 🔬 Fuse ML + Symbolic outputs
+6. 📂 Save model artifacts to Firebase Storage
+7. 📊 Store metrics & version into Firestore model registry
+
+---
+
+## 🧬 Synthetic Data Bootstrap (MostlyAI)
+
+```python
+from mostlyai.sdk import MostlyAI
+
+mostly = MostlyAI(api_key=os.getenv("MOSTLYAI_API_KEY"), base_url="https://app.mostly.ai")
+dataset = mostly.synthetic_datasets.get('your-dataset-id')
+df = dataset.data()
+```
+
+---
+
+## 🐳 Docker Deployment
+
+```bash
+docker build -t mntrk-sovereign-grid .
+docker run -p 5000:5000 --env-file .env mntrk-sovereign-grid
+```
+
+---
+
+## ⚠️ Security Notes
+
+- Do not commit `.env` to git
+- Rotate credentials periodically
+- Use CI/CD secrets management for production deployments
+
+---
+
+## 🔬 Sovereign Deployment Readiness
+
+| Subsystem | Status |
+| --------- | ------ |
+| ✅ Firestore | Live |
+| ✅ Neon Postgres | Live |
+| ✅ Environment Config | Secure |
+| ✅ Schema | Initialized |
+| ✅ Model Training | Fully Operational |
+| ✅ Neuro-Symbolic Grid | Fully Integrated |
+| ✅ Docker Deployment | Containerized |
+
+---
+
+## 🛰 Operational Status
+
+> 🟢 **MNTRK Sovereign Grid: LIVE & OPERATIONAL**
+
+---
+
+## 🫡 Overlord Control Panel
+
+This system now operates in full Neuro-Symbolic Sovereign Intelligence Mode.
