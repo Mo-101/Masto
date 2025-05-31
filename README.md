@@ -35,7 +35,7 @@ This is the **COMPLETE SOVEREIGN DEPLOYMENT VAULT** for the MNTRK Bio-Intelligen
 \`\`\`
 ┌─────────────────────────────────────────────────────────────┐
 │                    MNTRK SOVEREIGN GRID                    │
-├─────────────────────────────────────────────────────────────┤
+├──���──────────────────────────────────────────────────────────┤
 │  Field Data → Firestore → ML Pipeline → AI Analysis       │
 │       ↓            ↓           ↓            ↓              │
 │  Edge Nodes → Neon Archive → Symbolic → Observatory       │
