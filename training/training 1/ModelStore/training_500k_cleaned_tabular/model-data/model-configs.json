@@ -1,0 +1,162 @@
+{
+    "model_id": "MOSTLY_AI/Medium",
+    "model_units": {
+        "embedder@tgt:t0/c0__cat": 10,
+        "embedder@tgt:t1/c1__cat": 10,
+        "embedder@tgt:t2/c2__bin": 12,
+        "embedder@tgt:t3/c3__bin": 12,
+        "embedder@tgt:t4/c4__year": 10,
+        "embedder@tgt:t4/c4__month": 10,
+        "embedder@tgt:t4/c4__day": 10,
+        "embedder@tgt:t4/c4__hour": 10,
+        "embedder@tgt:t4/c4__minute": 10,
+        "embedder@tgt:t4/c4__second": 1,
+        "embedder@tgt:t5/c5__year": 10,
+        "embedder@tgt:t5/c5__month": 10,
+        "embedder@tgt:t5/c5__day": 10,
+        "embedder@tgt:t5/c5__hour": 10,
+        "embedder@tgt:t5/c5__minute": 10,
+        "embedder@tgt:t5/c5__second": 1,
+        "embedder@tgt:t6/c6__year": 10,
+        "embedder@tgt:t6/c6__month": 10,
+        "embedder@tgt:t6/c6__day": 10,
+        "embedder@tgt:t6/c6__hour": 10,
+        "embedder@tgt:t6/c6__minute": 10,
+        "embedder@tgt:t6/c6__second": 1,
+        "embedder@tgt:t7/c7__year": 10,
+        "embedder@tgt:t7/c7__month": 10,
+        "embedder@tgt:t7/c7__day": 10,
+        "embedder@tgt:t7/c7__hour": 10,
+        "embedder@tgt:t7/c7__minute": 10,
+        "embedder@tgt:t7/c7__second": 1,
+        "embedder@tgt:t8/c8__cat": 10,
+        "embedder@tgt:t9/c9__neg": 2,
+        "embedder@tgt:t9/c9__E2": 7,
+        "embedder@tgt:t9/c9__E1": 10,
+        "embedder@tgt:t9/c9__E0": 10,
+        "embedder@tgt:t10/c10__neg": 2,
+        "embedder@tgt:t10/c10__E2": 7,
+        "embedder@tgt:t10/c10__E1": 10,
+        "embedder@tgt:t10/c10__E0": 10,
+        "embedder@tgt:t11/c11__bin": 12,
+        "embedder@tgt:t12/c12__cat": 12,
+        "regressor@tgt:t0/c0__cat": [
+            48
+        ],
+        "regressor@tgt:t1/c1__cat": [
+            48
+        ],
+        "regressor@tgt:t2/c2__bin": [
+            80
+        ],
+        "regressor@tgt:t3/c3__bin": [
+            80
+        ],
+        "regressor@tgt:t4/c4__year": [
+            64
+        ],
+        "regressor@tgt:t4/c4__month": [
+            32
+        ],
+        "regressor@tgt:t4/c4__day": [
+            48
+        ],
+        "regressor@tgt:t4/c4__hour": [
+            48
+        ],
+        "regressor@tgt:t4/c4__minute": [
+            64
+        ],
+        "regressor@tgt:t4/c4__second": [
+            16
+        ],
+        "regressor@tgt:t5/c5__year": [
+            64
+        ],
+        "regressor@tgt:t5/c5__month": [
+            32
+        ],
+        "regressor@tgt:t5/c5__day": [
+            48
+        ],
+        "regressor@tgt:t5/c5__hour": [
+            48
+        ],
+        "regressor@tgt:t5/c5__minute": [
+            64
+        ],
+        "regressor@tgt:t5/c5__second": [
+            16
+        ],
+        "regressor@tgt:t6/c6__year": [
+            64
+        ],
+        "regressor@tgt:t6/c6__month": [
+            32
+        ],
+        "regressor@tgt:t6/c6__day": [
+            48
+        ],
+        "regressor@tgt:t6/c6__hour": [
+            32
+        ],
+        "regressor@tgt:t6/c6__minute": [
+            64
+        ],
+        "regressor@tgt:t6/c6__second": [
+            16
+        ],
+        "regressor@tgt:t7/c7__year": [
+            64
+        ],
+        "regressor@tgt:t7/c7__month": [
+            32
+        ],
+        "regressor@tgt:t7/c7__day": [
+            48
+        ],
+        "regressor@tgt:t7/c7__hour": [
+            48
+        ],
+        "regressor@tgt:t7/c7__minute": [
+            64
+        ],
+        "regressor@tgt:t7/c7__second": [
+            16
+        ],
+        "regressor@tgt:t8/c8__cat": [
+            48
+        ],
+        "regressor@tgt:t9/c9__neg": [
+            16
+        ],
+        "regressor@tgt:t9/c9__E2": [
+            32
+        ],
+        "regressor@tgt:t9/c9__E1": [
+            32
+        ],
+        "regressor@tgt:t9/c9__E0": [
+            32
+        ],
+        "regressor@tgt:t10/c10__neg": [
+            16
+        ],
+        "regressor@tgt:t10/c10__E2": [
+            32
+        ],
+        "regressor@tgt:t10/c10__E1": [
+            32
+        ],
+        "regressor@tgt:t10/c10__E0": [
+            32
+        ],
+        "regressor@tgt:t11/c11__bin": [
+            80
+        ],
+        "regressor@tgt:t12/c12__cat": [
+            96
+        ]
+    },
+    "enable_flexible_generation": true
+}
