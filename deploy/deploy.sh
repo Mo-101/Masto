@@ -1,47 +1,66 @@
 #!/bin/bash
 
-echo "🛡️ MNTRK Sovereign Grid Deployment"
-echo "=================================="
+# MNTRK Sovereign Observatory - Deployment Script
+# Production deployment automation
 
-# Check for .env file
+set -e
+
+echo "🛡️ MNTRK Sovereign Observatory - Deployment Starting"
+echo "=================================================="
+
+# Check if .env file exists
 if [ ! -f .env ]; then
-    echo "❌ .env file not found. Creating from example..."
-    cp .env.example .env
-    echo "⚠️ Please edit .env with your actual credentials before continuing."
+    echo "❌ Error: .env file not found"
+    echo "Please copy .env.example to .env and configure your environment variables"
     exit 1
 fi
 
 # Load environment variables
 source .env
 
-# Check for required environment variables
-if [ -z "$DATABASE_URL" ]; then
-    echo "❌ DATABASE_URL not set in .env file"
-    exit 1
-fi
+# Validate required environment variables
+required_vars=("DATABASE_URL" "FIREBASE_CREDENTIALS" "DEEPSEEK_API_KEY")
+for var in "${required_vars[@]}"; do
+    if [ -z "${!var}" ]; then
+        echo "❌ Error: Required environment variable $var is not set"
+        exit 1
+    fi
+done
 
-if [ -z "$FIREBASE_CREDENTIALS" ]; then
-    echo "❌ FIREBASE_CREDENTIALS not set in .env file"
-    exit 1
-fi
+echo "✅ Environment variables validated"
 
-# Create directories
-mkdir -p model
+# Create necessary directories
+echo "📁 Creating deployment directories..."
+mkdir -p logs models data
 
-# Initialize database schema
-echo "🗄️ Creating Neon database schema..."
-python setup/create_neon_schema.py
+# Initialize databases
+echo "🗄️ Initializing databases..."
+python deploy/create_neon_schema.py
+python deploy/create_firestore_collections.py
 
-# Initialize Firestore collections
-echo "🔥 Creating Firestore collections..."
-python setup/create_firestore_collections.py
+# Build Docker images
+echo "🐳 Building Docker images..."
+docker-compose -f deploy/docker-compose.yml build
 
-# Build and start Docker containers
-echo "🐳 Building Docker containers..."
-docker-compose build
+# Start services
+echo "🚀 Starting Sovereign services..."
+docker-compose -f deploy/docker-compose.yml up -d
 
-echo "🚀 Starting MNTRK Sovereign Grid..."
-docker-compose up -d
+# Wait for services to be ready
+echo "⏳ Waiting for services to initialize..."
+sleep 30
 
-echo "✅ MNTRK Sovereign Grid deployed successfully!"
-echo "🌐 Access the API at: http://localhost:8080"
+# Run system diagnostics
+echo "🔍 Running system diagnostics..."
+python deploy/sovereign_diagnostic.py
+
+# Display deployment status
+echo ""
+echo "🛰️ MNTRK Sovereign Observatory - Deployment Complete"
+echo "=================================================="
+echo "🌐 Sovereign API: http://localhost:8080"
+echo "🗺️ Observatory UI: http://localhost:3000"
+echo "📷 Edge Inference: http://localhost:8081"
+echo "🔍 System Status: http://localhost:8080/api/system/status"
+echo ""
+echo "✅ All systems operational - Sovereign Grid is LIVE"

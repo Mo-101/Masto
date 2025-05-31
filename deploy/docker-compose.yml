@@ -68,7 +68,7 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8080
-      - CESIUM_TOKEN=${CESIUM_ACCESS_TOKEN}
+      - NEXT_PUBLIC_CESIUM_TOKEN=${CESIUM_ACCESS_TOKEN}
     depends_on:
       - mntrk-api
     networks:

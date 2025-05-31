@@ -35,7 +35,7 @@ This is the **COMPLETE SOVEREIGN DEPLOYMENT VAULT** for the MNTRK Bio-Intelligen
 \`\`\`
 ┌─────────────────────────────────────────────────────────────┐
 │                    MNTRK SOVEREIGN GRID                    │
-├──���──────────────────────────────────────────────────────────┤
+├─────────────────────────────────────────────────────────────┤
 │  Field Data → Firestore → ML Pipeline → AI Analysis       │
 │       ↓            ↓           ↓            ↓              │
 │  Edge Nodes → Neon Archive → Symbolic → Observatory       │
@@ -126,7 +126,7 @@ For technical support or deployment assistance, refer to the documentation in th
 **🛡️ SOVEREIGN GRID COMMAND: DEPLOYMENT VAULT COMPLETE**
 \`\`\`
 
-\`\`\`python file="api/main.py"
+```python file="api/main.py"
 """
 MNTRK Sovereign Observatory - Main API Server
 Production-ready Flask application with full AI capabilities
