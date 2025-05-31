@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Real Firebase setup and connection test script
-Run this after creating your Firebase project and downloading credentials
+Firebase setup and connection test script for mntrk-fcd2b project
 """
 
 import os
@@ -11,7 +10,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 def setup_firebase():
-    """Setup and test Firebase connection"""
+    """Setup and test Firebase connection to mntrk-fcd2b"""
     
     # Check for credentials file
     creds_path = os.environ.get('FIREBASE_CREDENTIALS')
@@ -20,14 +19,23 @@ def setup_firebase():
         print("Set it with: export FIREBASE_CREDENTIALS=/path/to/firebase-credentials.json")
         return False
     
-    if not os.path.exists(creds_path):
-        print(f"❌ Firebase credentials file not found: {creds_path}")
-        return False
-    
     try:
-        # Initialize Firebase
-        cred = credentials.Certificate(creds_path)
-        firebase_admin.initialize_app(cred)
+        # Load credentials
+        if os.path.exists(creds_path):
+            cred = credentials.Certificate(creds_path)
+        else:
+            # Try to parse as JSON string
+            try:
+                cred_dict = json.loads(creds_path)
+                cred = credentials.Certificate(cred_dict)
+            except json.JSONDecodeError:
+                raise ValueError("FIREBASE_CREDENTIALS must be a valid JSON string or file path")
+        
+        # Initialize Firebase with specific project
+        firebase_admin.initialize_app(cred, {
+            'projectId': 'mntrk-fcd2b',
+            'storageBucket': 'mntrk-fcd2b.appspot.com'
+        })
         
         # Test Firestore connection
         db = firestore.client()
@@ -37,7 +45,8 @@ def setup_firebase():
         test_ref.set({
             'status': 'firebase_operational',
             'timestamp': firestore.SERVER_TIMESTAMP,
-            'test_type': 'connection_verification'
+            'test_type': 'connection_verification',
+            'service_account': 'firebase-adminsdk-34yxt@mntrk-fcd2b.iam.gserviceaccount.com'
         })
         
         # Read it back
@@ -60,6 +69,9 @@ def setup_firebase():
 
 if __name__ == "__main__":
     print("🔥 FIREBASE SETUP AND CONNECTION TEST")
+    print("=" * 50)
+    print(f"Project: mntrk-fcd2b")
+    print(f"Service Account: firebase-adminsdk-34yxt@mntrk-fcd2b.iam.gserviceaccount.com")
     print("=" * 50)
     
     if setup_firebase():
